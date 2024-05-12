@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const constraints = { video: { min: 200, max: 400 }, audio: false };
+const constraints = { video: { facingMode: 'environment', min: 200, max: 400 }, audio: false };
 
 const CameraCanvas = ({ innerRef }) => {
   const [stream, setStream] = useState(null);

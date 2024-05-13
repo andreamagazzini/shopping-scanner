@@ -1,51 +1,71 @@
-import { useState, useRef } from 'react';
-import Tesseract from 'tesseract.js';
-import { useCallback } from 'react';
-import { useInterval } from '../hooks/useInterval';
+import { useState, useRef, useCallback } from 'react';
+//import Tesseract from 'tesseract.js';
+import axios from 'axios';
 
 const CanvasAnalyzer = ({ src }) => {
+  const [loading, setLoading] = useState(false);
   const [textResult,setTextResult] = useState(null);
   const outputRef = useRef();
 
-  useInterval(() => {
-    recognizeText(src)
-  }, 3000); 
-
-  const drawImage = useCallback((canvas, data) => {
-    const ctx = outputRef.current.getContext("2d");
-    outputRef.current.width = canvas.width;
-    outputRef.current.height = canvas.height;
-    ctx.drawImage(canvas, 0, 0);
-    const { lines } = data || {};
-
-    lines.forEach((block) => {
-      const {x0, y0, x1, y1} = block.bbox;
-
+  const drawBoxes = useCallback((ctx, boundingBoxes) => {
+    boundingBoxes.forEach((box) => {
       ctx.beginPath();
-      ctx.moveTo(x0, y0);
-      ctx.lineTo(x0, y1);
-      ctx.lineTo(x1, y1);
-      ctx.lineTo(x1, y0);
+      
+      box.forEach((line, index) => {
+        if (index === 0) {
+          ctx.moveTo(line.x, line.y);
+        } else {
+          ctx.lineTo(line.x, line.y);
+        }
+      })
+      
       ctx.closePath();
       ctx.stroke();
     })
   }, [])
 
   const recognizeText = async (canvas) => {
+    setLoading(true)
     const img = await canvas.toDataURL("image/jpg");
+    const ctx = outputRef.current.getContext("2d");
+    outputRef.current.width = canvas.width;
+    outputRef.current.height = canvas.height;
+    ctx.drawImage(canvas, 0, 0);
 
-    // TODO: change the way the text is recognized
-    const result = await Tesseract.recognize(img, "eng");
-    
-    drawImage(canvas, result.data)
-    setTextResult(result.data.text)
+    const apiKey = import.meta.env.VITE_GOOGLE_CLOUD_VISION_API_KEY;
+    const apiUrl = `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`;
+
+    const requestData = {
+      requests: [
+        {
+          image: {
+            content: img.split(';base64,')[1],
+          },
+          features: [{ type: 'TEXT_DETECTION', maxResults: 5 }],
+        },
+      ],
+    };
+
+    const apiResponse = await axios.post(apiUrl, requestData);
+
+    const boundingBoxes = apiResponse.data.responses[0].textAnnotations.map(({ boundingPoly }) => (boundingPoly.vertices)) 
+
+    drawBoxes(ctx, boundingBoxes)
+    setTextResult(apiResponse.data.responses[0].fullTextAnnotation.text)
+    setLoading(false)
   }
 
   return (
     <>
       {/* <!-- Camera frame --> */}
       <canvas ref={outputRef}></canvas>
-      <div>{textResult}</div>
+      {
+        loading ?
+        <div>Loading...</div>
+        :
+        <div>{textResult}</div>
+      }
+      <button disabled={loading} onClick={async () => await recognizeText(src)}>Start</button>
     </>
   )
 }

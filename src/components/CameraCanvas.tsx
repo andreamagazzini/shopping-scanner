@@ -1,15 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, FC } from 'react';
 
 const constraints = { video: { facingMode: 'environment', min: 200, max: 400 }, audio: false };
 
-const CameraCanvas = ({ innerRef }) => {
-  const [stream, setStream] = useState(null);
+interface Props {
+  innerRef: any
+}
+
+const CameraCanvas: FC<Props> = ({ innerRef }) => {
+  const [stream, setStream] = useState<null | MediaStream>(null);
 
   useEffect(() => {
     if (!stream) {
       navigator.mediaDevices
         .getUserMedia(constraints)
-        .then((stream) => {
+        .then((stream: MediaStream) => {
           setStream(stream);
         })
         .catch((error) => {
@@ -27,7 +31,7 @@ const CameraCanvas = ({ innerRef }) => {
 
     let width = 400;
     let height = 400;
-    
+
     video.onresize = () => {
       width = video.videoWidth;
       height = video.videoHeight;
@@ -37,7 +41,7 @@ const CameraCanvas = ({ innerRef }) => {
     canvas.height = 400;
 
     const render = () => {
-      context.drawImage(video, Math.round(width/3), Math.round(height/3), 400, 400, 0, 0, width, height);
+      context.drawImage(video, Math.round(width / 3), Math.round(height / 3), 400, 400, 0, 0, width, height);
       requestAnimationFrame(render);
     };
 
@@ -52,7 +56,7 @@ const CameraCanvas = ({ innerRef }) => {
   return (
     <>
       {/* <!-- Camera stream --> */}
-    <canvas ref={innerRef}></canvas>
+      <canvas ref={innerRef}></canvas>
     </>
   )
 }

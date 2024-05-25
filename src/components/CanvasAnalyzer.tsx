@@ -11,7 +11,7 @@ interface Props {
 const dateRegex = new RegExp([
   '(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})',
   '(0[1-9]|1[0-2])-?([0-9]{4}|[0-9]{2})'
-].join(''),"g");
+].join('|'),"g");
 
 const mapBoundingBoxCoordsToPoints = (boundingBox: BoundingBox) => {
   const {x, y, width, height } = boundingBox.pixelCoords
@@ -68,7 +68,9 @@ const CanvasAnalyzer: FC<Props> = ({ src }) => {
         const boundingBoxes = data.segments?.map((segment: Segment) => mapBoundingBoxCoordsToPoints(segment.boundingBox))
         const text = data.segments?.map((segment: Segment) => segment.text).join(" ")
 
-        const dates = text.match(dateRegex)
+        const dates = text.match(dateRegex) || []
+
+        console.log(dates, text)
   
         drawBoxes(ctx, boundingBoxes)
         setTextResult(dates[0] || "No date found")

@@ -11,7 +11,7 @@
   "dependencies": {
     "@img/sharp-linux-x64": "^0.33.4",
     "axios": "^1.6.8",
-    "image-to-text-google-lens": "^1.1.1",
+    "image-to-text-google-lens": "^1.1.2",
     "next": "14.2.3",
     "next-auth": "^4.24.7",
     "optional": "^0.1.4",

@@ -15,8 +15,8 @@ importers:
         specifier: ^1.6.8
         version: 1.6.8
       image-to-text-google-lens:
-        specifier: ^1.1.0
-        version: 1.1.0
+        specifier: ^1.1.1
+        version: 1.1.1
       next:
         specifier: 14.2.3
         version: 14.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -975,8 +975,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  image-to-text-google-lens@1.1.0:
-    resolution: {integrity: sha512-ejOwCBmR2nYQ/DEhnYqt6qaoxCDqwbJMxtvdhsttcK7oJGLVIKWG9UpqV5LBJRr5orWRQ/hhR8tD6fGEddi7sQ==}
+  image-to-text-google-lens@1.1.1:
+    resolution: {integrity: sha512-SIVJSR7BsCk078ItLyXtNLUs5dNhi0pEqL9Mjz4nMqWtb4iDr/J8FTCSRAj4RQWC2GVTPS4A/6+7lrfa+gjMXg==}
 
   import-fresh@3.3.0:
     resolution: {integrity: sha512-veYYhQa+D1QBKznvhUHxb8faxlrwUnxseDAbAp457E0wLNio2bOSKnjYDhMj+YiAq61xrMGhQk9iXVk5FzgQMw==}
@@ -2920,7 +2920,7 @@ snapshots:
 
   image-dimensions@2.3.0: {}
 
-  image-to-text-google-lens@1.1.0:
+  image-to-text-google-lens@1.1.1:
     dependencies:
       clipboardy: 4.0.0
       file-type: 19.0.0

@@ -6,6 +6,8 @@ interface Props {
   innerRef: any
 }
 
+const CANVAS_SIZE = 400
+
 const CameraCanvas: FC<Props> = ({ innerRef }) => {
   const [stream, setStream] = useState<null | MediaStream>(null);
 
@@ -29,19 +31,19 @@ const CameraCanvas: FC<Props> = ({ innerRef }) => {
     video.srcObject = stream;
     video.play();
 
-    let width = 400;
-    let height = 400;
+    let width = CANVAS_SIZE;
+    let height = CANVAS_SIZE;
 
     video.onresize = () => {
       width = video.videoWidth;
       height = video.videoHeight;
     };
 
-    canvas.width = 400;
-    canvas.height = 400;
+    canvas.width = CANVAS_SIZE;
+    canvas.height = CANVAS_SIZE;
 
     const render = () => {
-      context.drawImage(video, Math.round(width / 3), Math.round(height / 3), 400, 400, 0, 0, width, height);
+      context.drawImage(video, Math.round(width / 3), Math.round(height / 3), CANVAS_SIZE, CANVAS_SIZE, 0, 0, width, height);
       requestAnimationFrame(render);
     };
 

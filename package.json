@@ -9,11 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@img/sharp-linux-x64": "^0.33.4",
     "axios": "^1.6.8",
+    "image-to-text-google-lens": "^1.1.1",
     "next": "14.2.3",
     "next-auth": "^4.24.7",
+    "optional": "^0.1.4",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "sharp": "^0.33.4"
   },
   "devDependencies": {
     "@types/node": "^20",

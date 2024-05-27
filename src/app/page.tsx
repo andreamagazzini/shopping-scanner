@@ -1,7 +1,6 @@
 'use client'
 import { useState } from "react";
 
-import ImageAnalyzer from "@/components/ExpDateButton";
 import BarcodeReader from "@/components/BarcodeReader";
 import { Product } from "@/@types/Product";
 import ExpDateButton from "@/components/ExpDateButton";
@@ -21,7 +20,7 @@ export default function Home() {
       <div className="w-full flex flex-col">
       {
         products.map((product) => (
-          <div key={product.barcode_formats.ean_13} className="p-3 flex justify-between">{product.title} <ExpDateButton /></div>
+          <div key={product.code} className="p-3 flex justify-between">{product.product_name} <ExpDateButton /></div>
         ))
       }
       </div>

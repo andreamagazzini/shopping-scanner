@@ -2,7 +2,12 @@ import { Product } from '@/@types/Product';
 import axios from 'axios';
 import { FC, useCallback, useState } from 'react';
 import { useZxing } from "react-zxing";
+import { useMediaDevices } from "react-media-devices";
 
+const constraints: MediaStreamConstraints = {
+  video: true,
+  audio: false,
+};
 interface Props {
   onDetected: (product: Product) => void,
 }
@@ -12,8 +17,10 @@ const BarcodeReader: FC<Props> = ({ onDetected }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | unknown>()
 
+  const { devices } = useMediaDevices({ constraints });
+
   const getProductDetails = useCallback(async (code: string) => {
-    const { data } = await axios.get(`/api/barcode/search?code=${code}`)
+    const { data } = await axios.get(`https://world.openfoodfacts.org/api/v0/product/${code}`)
     data.product && onDetected(data.product)
     setLoading(false)
   }, [onDetected])
@@ -31,11 +38,9 @@ const BarcodeReader: FC<Props> = ({ onDetected }) => {
     },
     onDecodeError(error) {
       setError(error)
-      console.log(error)
     },
     onError(error) {
       setError(error)
-      console.log(error)
     }
   });
 
@@ -45,12 +50,13 @@ const BarcodeReader: FC<Props> = ({ onDetected }) => {
         <video id="camera-stream" ref={ref} />
         <canvas id="screenshot" className="hidden" />
       </div>
+      {JSON.stringify(devices?.filter((device) => device.kind === "videoinput"))}
       {
         loading &&
         <div>Loading...</div>
       }
       {
-        error && 
+        Boolean(error && Object.keys(error).length) && 
         <div>{JSON.stringify(error)}</div>
       }
     </>

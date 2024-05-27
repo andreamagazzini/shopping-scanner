@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
       query: code
     },
     headers: {
-      'x-rapidapi-key': '356902a95emshece54ab074e5976p16ddacjsneb2b14b100dc',
+      'x-rapidapi-key': process.env.RAPID_API_KEY,
       'x-rapidapi-host': 'barcodes1.p.rapidapi.com'
     }
   };

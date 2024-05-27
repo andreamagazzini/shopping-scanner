@@ -1,8 +1,9 @@
 import { Product } from '@/@types/Product';
 import axios from 'axios';
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { useZxing } from "react-zxing";
 import { useMediaDevices } from "react-media-devices";
+import { getCameraWithClosestFocus } from '@/app/utils/cameras';
 
 const constraints: MediaStreamConstraints = {
   video: true,
@@ -15,9 +16,16 @@ interface Props {
 const BarcodeReader: FC<Props> = ({ onDetected }) => {
   const [code, setCode] = useState<string>("")
   const [loading, setLoading] = useState(false)
+  const [deviceId, setDeviceId] = useState("")
   const [error, setError] = useState<Error | unknown>()
 
-  const { devices } = useMediaDevices({ constraints });
+  useEffect(() => {
+    const id = getCameraWithClosestFocus().then((id) => {
+      id && setDeviceId(id)
+    }).catch((e) => {
+      console.log(e)
+    })
+  }, [])
 
   const getProductDetails = useCallback(async (code: string) => {
     const { data } = await axios.get(`https://world.openfoodfacts.org/api/v0/product/${code}`)
@@ -25,7 +33,11 @@ const BarcodeReader: FC<Props> = ({ onDetected }) => {
     setLoading(false)
   }, [onDetected])
 
+  console.log(deviceId)
+
   const { ref } = useZxing({
+    paused: !deviceId,
+    deviceId,
     onDecodeResult(result) {
       setError(null)
       setLoading(true)
@@ -50,7 +62,6 @@ const BarcodeReader: FC<Props> = ({ onDetected }) => {
         <video id="camera-stream" ref={ref} />
         <canvas id="screenshot" className="hidden" />
       </div>
-      {JSON.stringify(devices?.filter((device) => device.kind === "videoinput"))}
       {
         loading &&
         <div>Loading...</div>

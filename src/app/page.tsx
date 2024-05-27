@@ -1,23 +1,30 @@
 'use client'
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
-import CameraCanvas from "@/components/CameraCanvas";
-import CanvasAnalyzer from "@/components/CanvasAnalyzer";
+import ImageAnalyzer from "@/components/ExpDateButton";
+import BarcodeReader from "@/components/BarcodeReader";
+import { Product } from "@/@types/Product";
+import ExpDateButton from "@/components/ExpDateButton";
 
 export default function Home() {
-  const [src, setSrc] = useState(null)
-  const canvasRef = useRef();
+  const [products, setProducts] = useState<Product[]>([])
 
-  useEffect(() => {
-    if (canvasRef.current) {
-      setSrc(canvasRef.current)
-    }
-  }, [canvasRef]) 
+  const handleProductDetected = (product: Product) => {
+    setProducts((products: Product[]) => [...products, product])
+  }
+
+  console.log(products)
   
   return (
     <main className="flex flex-col gap-2">
-      <CameraCanvas innerRef={canvasRef} />
-      <CanvasAnalyzer src={src} />
+      <BarcodeReader onDetected={handleProductDetected} />
+      <div className="w-full flex flex-col">
+      {
+        products.map((product) => (
+          <div key={product.barcode_formats.ean_13} className="p-3 flex justify-between">{product.title} <ExpDateButton /></div>
+        ))
+      }
+      </div>
     </main>
   );
 }

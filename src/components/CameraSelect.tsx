@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useState } from "react"
+import { ChangeEvent, FC, useEffect, useState } from "react"
 import { useMediaDevices } from "react-media-devices";
 
 const constraints: MediaStreamConstraints = {
@@ -12,8 +12,14 @@ type Props = {
 }
 
 const CameraSelect: FC<Props> = ({ onChange, defaultValue }) => {
-  const [deviceId, setDeviceId] = useState(defaultValue || localStorage.getItem("deviceId") || "")
+  const [deviceId, setDeviceId] = useState(defaultValue || "")
   const { devices } = useMediaDevices({ constraints })
+
+  useEffect(() => {
+    const id = localStorage.getItem("deviceId")
+
+    !deviceId && id && setDeviceId(id)
+  }, [deviceId])
 
   const handleSelectCamera = (e: ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value

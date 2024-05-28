@@ -1,5 +1,5 @@
 'use client'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import BarcodeReader from "@/components/BarcodeReader";
 import { Product } from "@/@types/Product";
@@ -8,7 +8,13 @@ import CameraSelect from "@/components/CameraSelect";
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([])
-  const [deviceId, setDeviceId] = useState(localStorage.getItem("deviceId") || "")
+  const [deviceId, setDeviceId] = useState("")
+
+  useEffect(() => {
+    const id = localStorage.getItem("deviceId")
+
+    id && setDeviceId(id)
+  }, [])
 
   const handleProductDetected = (product: Product) => {
     setProducts((products: Product[]) => [...products, product])

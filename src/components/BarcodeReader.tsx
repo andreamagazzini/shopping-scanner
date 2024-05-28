@@ -1,9 +1,9 @@
 import { Product } from '@/@types/Product';
 import axios from 'axios';
-import { FC, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
 import { useZxing } from "react-zxing";
 import { useMediaDevices } from "react-media-devices";
-import { getCameraWithClosestFocus } from '@/app/utils/cameras';
+import { getCameraWithClosestFocus, getCameras } from '@/app/utils/cameras';
 
 const constraints: MediaStreamConstraints = {
   video: true,
@@ -19,8 +19,10 @@ const BarcodeReader: FC<Props> = ({ onDetected }) => {
   const [deviceId, setDeviceId] = useState("")
   const [error, setError] = useState<Error | unknown>()
 
+  const { devices } = useMediaDevices({ constraints })
+
   useEffect(() => {
-    const id = getCameraWithClosestFocus().then((id) => {
+    getCameraWithClosestFocus().then((id) => {
       id && setDeviceId(id)
     }).catch((e) => {
       console.log(e)
@@ -32,8 +34,6 @@ const BarcodeReader: FC<Props> = ({ onDetected }) => {
     data.product && onDetected(data.product)
     setLoading(false)
   }, [onDetected])
-
-  console.log(deviceId)
 
   const { ref } = useZxing({
     paused: !deviceId,
@@ -56,18 +56,37 @@ const BarcodeReader: FC<Props> = ({ onDetected }) => {
     }
   });
 
+  const handleSelectCamera = (e: ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value
+
+    console.log(value)
+
+    localStorage.setItem("favoriteNumber", value)
+    setDeviceId(value)
+  }
+
   return (
     <>
       <div>
         <video id="camera-stream" ref={ref} />
         <canvas id="screenshot" className="hidden" />
+        {
+          devices &&
+          <select className="w-full text-black p-3 bg-white" onChange={handleSelectCamera}>
+            {
+              devices?.filter((device) => device.kind === "videoinput").map((camera: MediaDeviceInfo) => (
+                <option key={camera.deviceId} value={camera.deviceId}>{camera.label}</option>
+              ))
+            }
+          </select>
+        }
       </div>
       {
         loading &&
         <div>Loading...</div>
       }
       {
-        Boolean(error && Object.keys(error).length) && 
+        Boolean(error && Object.keys(error).length) &&
         <div>{JSON.stringify(error)}</div>
       }
     </>

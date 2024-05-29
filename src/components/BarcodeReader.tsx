@@ -43,7 +43,6 @@ const BarcodeReader: FC<Props> = ({ deviceId, onDetected }) => {
     <>
       <div>
         <video id="camera-stream" ref={ref} />
-        <canvas id="screenshot" className="hidden" />
       </div>
       {
         loading &&

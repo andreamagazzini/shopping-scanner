@@ -1,6 +1,5 @@
 import { useState, FC } from 'react';
-import axios from 'axios';
-import Segment from '@/@types/Segment';
+import useGoogleLens from '@/hooks/useGoogleLens';
 
 interface Props {}
 
@@ -10,42 +9,16 @@ const dateRegex = new RegExp([
 ].join('|'), "g");
 
 const ExpDateButton: FC<Props> = () => {
-  const [loading, setLoading] = useState(false);
   const [textResult, setTextResult] = useState<string | null>(null);
 
-  const recognizeText = async (blob: Blob) => {
-    setLoading(true)
-    try {
-      const formData = new FormData();
-      formData.append('image', blob, 'image.png');
-      const { data } = await axios.post('/api/image/text-detection', formData)
+  const { analyzeImage, loading } = useGoogleLens({videoId: "camera-stream"})
 
-      const text = data.segments?.map((segment: Segment) => segment.text).join(" ")
+  const handleClick = async () => {
+    const { text } = await analyzeImage()
 
-      const dates = text.match(dateRegex) || []
+    const dates = text.match(dateRegex) || [];
 
-      console.log(dates, text)
-      dates[0] && setTextResult(dates[0])
-    } catch (e) {
-      console.log(e)
-    }
-    setLoading(false)
-  }
-
-  const getBlob = () => {
-    const canvas = document.querySelector('#screenshot') as HTMLCanvasElement;
-    const video = document.querySelector('#camera-stream') as HTMLVideoElement;
-
-    if (!video || !canvas) {
-      return
-    }
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext('2d')?.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-    canvas.toBlob(async (blob: Blob | null) => {
-      blob && await recognizeText(blob)
-    })
+    dates.length && setTextResult(dates)
   }
 
   return (
@@ -55,7 +28,7 @@ const ExpDateButton: FC<Props> = () => {
             <div>{textResult}</div>
             :
             <button
-              onClick={getBlob}
+              onClick={handleClick}
               disabled={loading}
             >
               {loading ? "Loading..." : "Get exp date"}

@@ -3,11 +3,12 @@ import { useEffect, useState } from "react";
 
 import BarcodeReader from "@/components/BarcodeReader";
 import { Product } from "@/@types/Product";
-import ExpDateButton from "@/components/ExpDateButton";
 import CameraSelect from "@/components/CameraSelect";
+import ScannedProductList from "@/components/ScannedProductList";
+import { ScannedProduct } from "@/@types/ScannedProduct";
 
 export default function Home() {
-  const [products, setProducts] = useState<Product[]>([])
+  const [scannedProducts, setScannedProducts] = useState<ScannedProduct[]>([])
   const [deviceId, setDeviceId] = useState("")
 
   useEffect(() => {
@@ -17,25 +18,39 @@ export default function Home() {
   }, [])
 
   const handleProductDetected = (product: Product) => {
-    setProducts((products: Product[]) => [...products, product])
+    let scannedProduct = { 
+      ...product,
+      id: `${product.code}-${Date.now()}`,
+      quantity: 1
+    } as ScannedProduct
+    
+    setScannedProducts((scannedProducts: ScannedProduct[]) => [...scannedProducts, scannedProduct])
   }
 
   const handleChangeCamera = (id: string) => {
     localStorage.setItem("deviceId", id)
     setDeviceId(id)
   }
+
+  const handleDelete = (id: string) => {
+    setScannedProducts((scannedProducts: ScannedProduct[]) => scannedProducts.filter((sp) => sp.id !== id))
+  }
+
+  const handleDetectDate = (id: string, date: Date) => {
+    setScannedProducts((scannedProducts: ScannedProduct[]) => scannedProducts.map((sp) => {
+      if (sp.id === id) { 
+        return { ...sp, expDate: date }
+      }
+
+      return sp
+    }))
+  }
   
   return (
     <main className="flex flex-col gap-2">
       <CameraSelect onChange={handleChangeCamera} defaultValue={deviceId} />
       <BarcodeReader onDetected={handleProductDetected} deviceId={deviceId} />
-      <div className="w-full flex flex-col">
-      {
-        products.map((product) => (
-          <div key={product.code} className="p-3 flex justify-between">{product.product_name} <ExpDateButton /></div>
-        ))
-      }
-      </div>
+      <ScannedProductList scannedProducts={scannedProducts} onDeleteItem={handleDelete} onDetectDate={handleDetectDate} />
     </main>
   );
 }
